@@ -16,13 +16,12 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
     
-    // 验证文件类型
-    const allowedTypes = [
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
-      'text/plain', // .txt
-    ];
+    // 检查文件扩展名
+    const fileName = file.name.toLowerCase();
+    const isDocx = fileName.endsWith('.docx');
+    const isTxt = fileName.endsWith('.txt');
     
-    if (!allowedTypes.includes(file.type)) {
+    if (!isDocx && !isTxt) {
       return NextResponse.json({
         code: 400,
         message: '仅支持 .docx 和 .txt 文件',
@@ -40,24 +39,32 @@ export async function POST(request: NextRequest) {
     
     let text = '';
     
-    if (file.type === 'text/plain') {
+    if (isTxt) {
       // 纯文本文件
       text = await file.text();
-    } else if (file.name.endsWith('.docx') || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+    } else if (isDocx) {
       // Word文档
-      const arrayBuffer = await file.arrayBuffer();
-      const result = await mammoth.extractRawText({ arrayBuffer });
-      text = result.value;
-      
-      if (result.messages.length > 0) {
-        console.warn('Word解析警告:', result.messages);
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        text = result.value;
+        
+        if (result.messages.length > 0) {
+          console.warn('Word解析警告:', result.messages);
+        }
+      } catch (err) {
+        console.error('Word解析错误:', err);
+        return NextResponse.json({
+          code: 500,
+          message: 'Word文件解析失败，请确保是有效的.docx文件',
+        }, { status: 500 });
       }
     }
     
     // 清理文本
     text = text.trim();
     
-    if (!text) {
+    if (!text || text.length === 0) {
       return NextResponse.json({
         code: 400,
         message: '文件中没有有效内容',

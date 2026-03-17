@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AIGC降重工具 - AI文本降重",
-  description: "将AI生成的文本转化为更自然的人类写作风格，降低AI检测率",
+  title: "爱(AI)降 - 专业降AIGC工具｜深度适配知网、维普、万方、格子达、Turnitin、GPTzero",
+  description: "一键降AI，全平台检测无忧。专注降低AIGC生成痕迹，深度适配知网、维普、万方、格子达、Turnitin、GPTzero，一键消除AI特征，降低AIGC检测率，让文本回归真人原创质感。",
 };
 
 export default function RootLayout({

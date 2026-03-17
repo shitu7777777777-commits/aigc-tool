@@ -85,7 +85,7 @@ export default function Home() {
   // Auto detect text language based on content
   const hasChinese = /[\u4e00-\u9fa5]/.test(text);
   const effectiveLang = hasChinese ? 'zh' : textLang;
-  const wc = effectiveLang === 'zh' ? text.replace(/\s/g, '').length : text.trim().split(/\s+/).length;
+  const wc = !text.trim() ? 0 : (effectiveLang === 'zh' ? text.replace(/\s/g, '').length : text.trim().split(/\s+/).length);
   const cur = region?.currencySymbol || (uiLang === 'zh' ? '¥' : '$');
   const pricePerThousandLabel = region?.country === 'CN' ? '每千字2元' : '$0.5/1k words';
   const pp = region?.pricePerThousand || (textLang === 'zh' ? 2 : 0.5);

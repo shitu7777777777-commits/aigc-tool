@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mammoth from 'mammoth';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -31,9 +34,17 @@ export async function POST(request: NextRequest) {
     if (isTxt) {
       text = await file.text();
     } else if (isDocx) {
-      const buffer = await file.arrayBuffer();
-      const result = await mammoth.extractRawText({ arrayBuffer: buffer });
-      text = result.value;
+      // Write to temp file then read
+      const tempDir = os.tmpdir();
+      const tempPath = path.join(tempDir, file.name);
+      const buffer = Buffer.from(await file.arrayBuffer());
+      fs.writeFileSync(tempPath, buffer);
+      
+      const result = mammoth.extractRawText({ path: tempPath });
+      text = (await result).value;
+      
+      // Clean up
+      fs.unlinkSync(tempPath);
     }
     
     text = text.trim();

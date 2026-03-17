@@ -24,8 +24,54 @@ export default function Home() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const t: any = {
-    zh: { t: 'AI降', s: '一键降AI，全平台检测无忧', p: '请输入文本或上传文档...', b: '立即降AI', l: '语言', m: '模式', std: '标准', deep: '深度', wc: '字数', pr: '价格', rs: '结果', cp: '复制', in: '登录', up: '上传文档', lg: '退出', bl: '余额', reg: '注册', pricing: '套餐', uploading: '解析中...', textLang: '文本语言' },
-    en: { t: 'AI', s: 'Remove AI Detection', p: 'Enter text...', b: 'Start', l: 'Lang', m: 'Mode', std: 'Std', deep: 'Deep', wc: 'Words', pr: 'Price', rs: 'Result', cp: 'Copy', in: 'Login', up: 'Upload', lg: 'Logout', bl: 'Balance', reg: 'Register', pricing: 'Pricing', uploading: 'Parsing...', textLang: 'Text Lang' }
+    zh: { 
+      title: '爱降', 
+      subtitle: '一键降AI，全平台检测无忧', 
+      desc: '爱降是专注降低AIGC生成痕迹的在线工具，采用智能语义重构技术，深度适配并有效应对知网、维普、万方、格子达、Turnitin、GPTzero等主流检测平台，一键消除AI特征，降低AIGC检测率，让文本回归真人原创质感。',
+      p: '请输入文本或上传文档...', 
+      b: '立即降AI', 
+      textLang: '文本语言',
+      mode: '模式', 
+      std: '标准', 
+      deep: '深度', 
+      wc: '字数', 
+      pr: '价格', 
+      rs: '结果', 
+      cp: '复制', 
+      in: '登录', 
+      up: '上传文档', 
+      lg: '退出', 
+      reg: '注册', 
+      pricing: '套餐', 
+      uploading: '解析中...',
+      features: ['降AIGC率', '全平台适配', '语义改写', '安全私密', '极速处理'],
+      featureDesc: ['精准消除AI生成痕迹', '支持知网维普万方TurnitinGPTzero', '不改原意不降质量', '文档不上云不存储', '粘贴即用一键生成'],
+      footer: '本工具仅提供文本表达优化服务，用于辅助提升原创性与可读性，不替代原创写作，不鼓励学术不端。'
+    },
+    en: { 
+      title: 'AI Remover', 
+      subtitle: 'Remove AI Detection, All Platforms', 
+      desc: 'AI Remover uses intelligent semantic restructuring to effectively bypass AI detection platforms including Turnitin, GPTZero, and more.',
+      p: 'Enter text or upload document...', 
+      b: 'Remove AI', 
+      textLang: 'Text Lang',
+      mode: 'Mode', 
+      std: 'Standard', 
+      deep: 'Deep', 
+      wc: 'Words', 
+      pr: 'Price', 
+      rs: 'Result', 
+      cp: 'Copy', 
+      in: 'Login', 
+      up: 'Upload', 
+      lg: 'Logout', 
+      reg: 'Register', 
+      pricing: 'Pricing', 
+      uploading: 'Processing...',
+      features: ['Remove AI', 'All Platforms', 'Semantic', 'Secure', 'Fast'],
+      featureDesc: ['Eliminate AI traces', 'Works with all detectors', 'Keep original meaning', 'No cloud storage', 'One-click result'],
+      footer: 'This tool provides text optimization services to improve originality and readability.'
+    }
   };
 
   useEffect(() => {
@@ -66,16 +112,16 @@ export default function Home() {
     try {
       const r = await fetch('/api/upload', { method: 'POST', body: fd });
       const d = await r.json();
-      if (d.code === 200) { setText(d.data.text); alert((uiLang === 'zh' ? '上传成功！' : 'Upload success!') + d.data.wordCount + (textLang === 'zh' ? '字' : ' words')); }
-      else { alert(d.message || (uiLang === 'zh' ? '上传失败' : 'Upload failed')); }
-    } catch (e) { alert(uiLang === 'zh' ? '上传失败' : 'Upload failed'); }
+      if (d.code === 200) { setText(d.data.text); alert((uiLang === 'zh' ? '上传成功！' : 'Success!') + d.data.wordCount + (textLang === 'zh' ? '字' : ' words')); }
+      else { alert(d.message || (uiLang === 'zh' ? '上传失败' : 'Failed')); }
+    } catch (e) { alert(uiLang === 'zh' ? '上传失败' : 'Failed'); }
     setIsUploading(false);
   };
 
   const auth = async () => {
     setErr('');
     if (authMode === 'register' && pwd !== cpwd) { setErr(uiLang === 'zh' ? '密码不一致' : 'Passwords do not match'); return; }
-    if (authMode === 'register' && pwd.length < 8) { setErr(uiLang === 'zh' ? '密码至少8位' : 'Password must be at least 8 characters'); return; }
+    if (authMode === 'register' && pwd.length < 8) { setErr(uiLang === 'zh' ? '密码至少8位' : 'Min 8 characters'); return; }
     try {
       const r = await fetch('/api/user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: authMode, email, password: pwd, nickname: nick }) });
       const d = await r.json();
@@ -90,7 +136,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center"><Zap className="w-6 h-6 text-white" /></div>
-            <h1 className="text-xl font-bold">{t[uiLang].t}</h1>
+            <h1 className="text-xl font-bold">{t[uiLang].title}</h1>
             {region && <span className="text-xs px-2 py-1 bg-slate-100 rounded-full">{region.country === 'CN' ? 'CN' : 'EN'}</span>}
           </div>
           <div className="flex items-center gap-3">
@@ -106,15 +152,24 @@ export default function Home() {
         </div>
       </header>
       <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center mb-8"><h2 className="text-3xl font-bold text-slate-800">{t[uiLang].s}</h2></div>
+        <div className="text-center mb-6">
+          <h2 className="text-3xl font-bold text-slate-800 mb-3">{t[uiLang].subtitle}</h2>
+          <p className="text-slate-600 max-w-2xl mx-auto">{t[uiLang].desc}</p>
+        </div>
         <div className="grid grid-cols-5 gap-2 mb-6">
-          {[Shield, CheckCircle, FileText, Lock, CloudLightning].map((Icon, i) => (<div key={i} className="bg-white p-3 rounded-xl text-center shadow-sm border"><Icon className="w-5 h-5 mx-auto mb-1 text-blue-500" /><span className="text-xs">{uiLang === 'zh' ? ['降AIGC', '全平台', '语义改写', '安全私密', '极速处理'][i] : ['Remove AI', 'All Platforms', 'Semantic', 'Secure', 'Fast'][i]}</span></div>))}
+          {[Shield, CheckCircle, FileText, Lock, CloudLightning].map((Icon, i) => (
+            <div key={i} className="bg-white p-3 rounded-xl text-center shadow-sm border">
+              <Icon className="w-5 h-5 mx-auto mb-1 text-blue-500" />
+              <span className="text-xs font-medium text-slate-700">{t[uiLang].features[i]}</span>
+              <p className="text-xs text-slate-400 mt-1">{t[uiLang].featureDesc[i]}</p>
+            </div>
+          ))}
         </div>
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="bg-slate-50 px-6 py-4 flex flex-wrap items-center justify-between">
             <div className="flex gap-4">
               <div><span className="text-xs text-slate-500 block mb-1">{t[uiLang].textLang}</span><div className="flex gap-1"><button onClick={() => setTextLang('zh')} className={`px-3 py-1 rounded text-sm ${textLang === 'zh' ? 'bg-blue-500 text-white' : 'bg-white'}`}>中文</button><button onClick={() => setTextLang('en')} className={`px-3 py-1 rounded text-sm ${textLang === 'en' ? 'bg-blue-500 text-white' : 'bg-white'}`}>EN</button></div></div>
-              <div><span className="text-xs text-slate-500 block mb-1">{t[uiLang].m}</span><div className="flex gap-1"><button onClick={() => setMode('standard')} className={`px-3 py-1 rounded text-sm ${mode === 'standard' ? 'bg-purple-500 text-white' : 'bg-white'}`}>{t[uiLang].std}</button><button onClick={() => setMode('deep')} className={`px-3 py-1 rounded text-sm ${mode === 'deep' ? 'bg-purple-500 text-white' : 'bg-white'}`}>{t[uiLang].deep}</button></div></div>
+              <div><span className="text-xs text-slate-500 block mb-1">{t[uiLang].mode}</span><div className="flex gap-1"><button onClick={() => setMode('standard')} className={`px-3 py-1 rounded text-sm ${mode === 'standard' ? 'bg-purple-500 text-white' : 'bg-white'}`}>{t[uiLang].std}</button><button onClick={() => setMode('deep')} className={`px-3 py-1 rounded text-sm ${mode === 'deep' ? 'bg-purple-500 text-white' : 'bg-white'}`}>{t[uiLang].deep}</button></div></div>
             </div>
             <div className="flex gap-4 text-sm"><span>{t[uiLang].wc}: <b>{wc}</b></span><span>{t[uiLang].pr}: <b className="text-blue-600">{cur}{price}</b></span></div>
           </div>
@@ -139,6 +194,7 @@ export default function Home() {
             )}
           </div>
         </div>
+        <p className="text-center text-xs text-slate-400 mt-6">{t[uiLang].footer}</p>
       </main>
       {showAuth && (<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"><div className="bg-white rounded-2xl w-full max-w-sm p-6"><div className="flex justify-between mb-4"><h2 className="text-xl font-bold">{authMode === 'login' ? t[uiLang].in : t[uiLang].reg}</h2><button onClick={() => setShowAuth(false)}><X className="w-5 h-5" /></button></div><div className="space-y-3"><input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" className="w-full p-2 border rounded-lg" />{authMode === 'register' && <input type="text" value={nick} onChange={e => setNick(e.target.value)} placeholder="Nickname" className="w-full p-2 border rounded-lg" />}<div className="relative"><input type={showPwd ? 'text' : 'password'} value={pwd} onChange={e => setPwd(e.target.value)} placeholder="Password" className="w-full p-2 border rounded-lg pr-8" /><button onClick={() => setShowPwd(!showPwd)} className="absolute right-2 top-2">{showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button></div>{authMode === 'register' && <input type="password" value={cpwd} onChange={e => setCpwd(e.target.value)} placeholder="Confirm Password" className="w-full p-2 border rounded-lg" />}{err && <p className="text-red-500 text-sm">{err}</p>}<button onClick={auth} className="w-full py-3 bg-blue-500 text-white rounded-lg">{authMode === 'login' ? t[uiLang].in : t[uiLang].reg}</button><p className="text-center text-sm text-slate-500">{authMode === 'login' ? (uiLang === 'zh' ? '没有账号？' : 'No account?') : (uiLang === 'zh' ? '已有账号？' : 'Has account?')}<button onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')} className="text-blue-500 ml-1">{authMode === 'login' ? t[uiLang].reg : t[uiLang].in}</button></p></div></div></div>)}
     </div>

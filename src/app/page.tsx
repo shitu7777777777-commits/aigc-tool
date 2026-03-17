@@ -36,6 +36,7 @@ export default function Home() {
       deep: '深度', 
       wc: '字数', 
       pr: '价格', 
+      pricePerThousand: '每千字2元', 
       rs: '结果', 
       cp: '复制', 
       in: '登录', 
@@ -60,6 +61,7 @@ export default function Home() {
       deep: 'Deep', 
       wc: 'Words', 
       pr: 'Price', 
+      pricePerThousand: '$0.5/1k words', 
       rs: 'Result', 
       cp: 'Copy', 
       in: 'Login', 
@@ -82,6 +84,7 @@ export default function Home() {
 
   const wc = textLang === 'zh' ? text.replace(/\s/g, '').length : text.trim().split(/\s+/).length;
   const cur = region?.currencySymbol || (uiLang === 'zh' ? '¥' : '$');
+  const pricePerThousandLabel = region?.country === 'CN' ? '每千字2元' : '$0.5/1k words';
   const pp = region?.pricePerThousand || (textLang === 'zh' ? 2 : 0.5);
   const price = Math.ceil(wc / 1000) * pp;
 
@@ -171,7 +174,7 @@ export default function Home() {
               <div><span className="text-xs text-slate-500 block mb-1">{t[uiLang].textLang}</span><div className="flex gap-1"><button onClick={() => setTextLang('zh')} className={`px-3 py-1 rounded text-sm ${textLang === 'zh' ? 'bg-blue-500 text-white' : 'bg-white'}`}>中文</button><button onClick={() => setTextLang('en')} className={`px-3 py-1 rounded text-sm ${textLang === 'en' ? 'bg-blue-500 text-white' : 'bg-white'}`}>EN</button></div></div>
               <div><span className="text-xs text-slate-500 block mb-1">{t[uiLang].mode}</span><div className="flex gap-1"><button onClick={() => setMode('standard')} className={`px-3 py-1 rounded text-sm ${mode === 'standard' ? 'bg-purple-500 text-white' : 'bg-white'}`}>{t[uiLang].std}</button><button onClick={() => setMode('deep')} className={`px-3 py-1 rounded text-sm ${mode === 'deep' ? 'bg-purple-500 text-white' : 'bg-white'}`}>{t[uiLang].deep}</button></div></div>
             </div>
-            <div className="flex gap-4 text-sm"><span>{t[uiLang].wc}: <b>{wc}</b></span><span>{t[uiLang].pr}: <b className="text-blue-600">{cur}{price}</b></span></div>
+            <div className="flex gap-4 text-sm"><span className="text-slate-500">{pricePerThousandLabel}</span><span>{t[uiLang].wc}: <b>{wc}</b></span><span>{t[uiLang].pr}: <b className="text-blue-600">{cur}{price}</b></span></div>
           </div>
           <div className="p-6">
             {!result ? (

@@ -14,6 +14,26 @@ function generateToken(userId: number): string {
   return Buffer.from(payload).toString('base64');
 }
 
+// 密码强度验证
+function validatePassword(password: string): { valid: boolean; message: string } {
+  if (password.length < 8) {
+    return { valid: false, message: '密码至少需要8位' };
+  }
+  if (!/[A-Z]/.test(password)) {
+    return { valid: false, message: '密码必须包含大写字母' };
+  }
+  if (!/[a-z]/.test(password)) {
+    return { valid: false, message: '密码必须包含小写字母' };
+  }
+  if (!/[0-9]/.test(password)) {
+    return { valid: false, message: '密码必须包含数字' };
+  }
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    return { valid: false, message: '密码必须包含特殊符号' };
+  }
+  return { valid: true, message: '密码强度通过' };
+}
+
 // 注册
 export async function POST(request: NextRequest) {
   try {
@@ -21,6 +41,15 @@ export async function POST(request: NextRequest) {
     const { action, email, password, nickname } = body;
     
     if (action === 'register') {
+      // 密码强度验证
+      const pwdCheck = validatePassword(password);
+      if (!pwdCheck.valid) {
+        return NextResponse.json({
+          code: 400,
+          message: pwdCheck.message + '，请使用大小写字母、数字和特殊符号的组合',
+        }, { status: 400 });
+      }
+      
       // 注册
       if (!email || !password) {
         return NextResponse.json({

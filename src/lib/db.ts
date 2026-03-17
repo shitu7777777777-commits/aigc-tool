@@ -1,5 +1,5 @@
 ﻿import mysql, { Pool, PoolOptions } from 'mysql2/promise';
-import config from './index';
+import config from '../config/index';
 
 const poolConfig: PoolOptions = {
   host: config.mysql.host,

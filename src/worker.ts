@@ -1,4 +1,4 @@
-import config from '../config';
+import config from '../config/index';
 import { popTask, getQueueLength } from '../lib/redis';
 import { processTask } from '../services/task';
 

@@ -1,9 +1,9 @@
-﻿import { createClient, RedisClientType } from 'redis';
-import config from '../config';
+import { createClient, RedisClientType } from 'redis';
+import config from '../config/index';
 
 let client: RedisClientType | null = null;
 
-// 鍒涘缓Redis瀹㈡埛绔?export async function getRedisClient(): Promise<RedisClientType> {
+// 创建Redis客户�?export async function getRedisClient(): Promise<RedisClientType> {
   if (client && client.isOpen) {
     return client;
   }
@@ -18,16 +18,16 @@ let client: RedisClientType | null = null;
   });
   
   client.on('error', (err) => {
-    console.error('鉂?Redis閿欒:', err);
+    console.error('�?Redis错误:', err);
   });
   
   await client.connect();
-  console.log('鉁?Redis杩炴帴鎴愬姛');
+  console.log('�?Redis连接成功');
   
   return client;
 }
 
-// 浠诲姟闃熷垪鐩稿叧
+// 任务队列相关
 export const QUEUE_KEYS = {
   TASK_QUEUE: 'aigc:task:queue',
   PROCESSING: 'aigc:task:processing',
@@ -35,51 +35,51 @@ export const QUEUE_KEYS = {
   USER_TASKS: (userId: number) => `aigc:user:${userId}:tasks`,
 };
 
-// 娣诲姞浠诲姟鍒伴槦鍒?export async function pushTask(taskId: string, priority: number = 0): Promise<void> {
+// 添加任务到队�?export async function pushTask(taskId: string, priority: number = 0): Promise<void> {
   const redis = await getRedisClient();
-  // 浣跨敤鏈夊簭闆嗗悎锛宻core浣滀负浼樺厛绾?瓒婁綆瓒婁紭鍏?
+  // 使用有序集合，score作为优先�?越低越优�?
   await redis.zAdd(QUEUE_KEYS.TASK_QUEUE, {
     score: priority,
     value: taskId,
   });
 }
 
-// 浠庨槦鍒楀彇鍑轰换鍔?export async function popTask(timeout: number = 0): Promise<string | null> {
+// 从队列取出任�?export async function popTask(timeout: number = 0): Promise<string | null> {
   const redis = await getRedisClient();
   
   if (timeout > 0) {
-    // 闃诲绛夊緟
+    // 阻塞等待
     const result = await redis.bzPopMin(QUEUE_KEYS.TASK_QUEUE, timeout);
-    return result?.element || null;
+    return (result as any)?.element || null;
   } else {
-    // 绔嬪嵆鍙?    const result = await redis.zPopMin(QUEUE_KEYS.TASK_QUEUE);
-    return result?.element || null;
+    // 立即�?    const result = await redis.zPopMin(QUEUE_KEYS.TASK_QUEUE);
+    return (result as any)?.element || null;
   }
 }
 
-// 鑾峰彇闃熷垪闀垮害
+// 获取队列长度
 export async function getQueueLength(): Promise<number> {
   const redis = await getRedisClient();
   return await redis.zCard(QUEUE_KEYS.TASK_QUEUE);
 }
 
-// 璁剧疆浠诲姟鐘舵€?export async function setTaskStatus(taskId: string, status: string, ttl: number = 3600): Promise<void> {
+// 设置任务状�?export async function setTaskStatus(taskId: string, status: string, ttl: number = 3600): Promise<void> {
   const redis = await getRedisClient();
   await redis.setEx(QUEUE_KEYS.TASK_STATUS(taskId), ttl, status);
 }
 
-// 鑾峰彇浠诲姟鐘舵€?export async function getTaskStatus(taskId: string): Promise<string | null> {
+// 获取任务状�?export async function getTaskStatus(taskId: string): Promise<string | null> {
   const redis = await getRedisClient();
   return await redis.get(QUEUE_KEYS.TASK_STATUS(taskId));
 }
 
-// 鏍囪浠诲姟姝ｅ湪澶勭悊
+// 标记任务正在处理
 export async function markProcessing(taskId: string, ttl: number = 600): Promise<void> {
   const redis = await getRedisClient();
   await redis.setEx(QUEUE_KEYS.PROCESSING, ttl, taskId);
 }
 
-// 绉婚櫎澶勭悊涓爣璁?export async function unmarkProcessing(taskId: string): Promise<void> {
+// 移除处理中标�?export async function unmarkProcessing(taskId: string): Promise<void> {
   const redis = await getRedisClient();
   await redis.del(QUEUE_KEYS.PROCESSING);
 }

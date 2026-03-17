@@ -49,8 +49,7 @@ export async function submitTask(
   // 5. 获取队列位置
   const queueLength = await getQueueLength();
   
-  // 6. 设置初始状态
-  await setTaskStatus(taskNo, TaskStatus.PENDING);
+  // 6. 设置初始状�?  await setTaskStatus(taskNo, TaskStatus.PENDING);
   
   // 7. 计算预计时间
   const estimatedTime = estimateProcessingTime(wordCount, queueLength);
@@ -62,10 +61,8 @@ export async function submitTask(
   };
 }
 
-// 查询任务状态
-export async function getTaskStatusByNo(taskNo: string): Promise<QueryTaskResponse> {
-  // 1. 先从Redis获取缓存状态
-  const cachedStatus = await getTaskStatus(taskNo);
+// 查询任务状�?export async function getTaskStatusByNo(taskNo: string): Promise<QueryTaskResponse> {
+  // 1. 先从Redis获取缓存状�?  const cachedStatus = await getTaskStatus(taskNo);
   
   // 2. 从数据库获取任务详情
   const tasks = await query<Task[]>(
@@ -76,25 +73,22 @@ export async function getTaskStatusByNo(taskNo: string): Promise<QueryTaskRespon
   if (!tasks || tasks.length === 0) {
     return {
       status: TaskStatus.FAILED,
-      error: '任务不存在',
+      error: '任务不存�?,
     };
   }
   
-  const task = tasks[0];
+  const task = tasks[0] as any;
   
-  // 3. 返回状态
-  return {
+  // 3. 返回状�?  return {
     status: task.status as TaskStatus,
     result: task.status === TaskStatus.COMPLETED ? task.converted_text : undefined,
     error: task.error_message || undefined,
   };
 }
 
-// 处理任务（Worker调用）
-export async function processTask(taskNo: string): Promise<void> {
+// 处理任务（Worker调用�?export async function processTask(taskNo: string): Promise<void> {
   try {
-    // 1. 更新状态为处理中
-    await setTaskStatus(taskNo, TaskStatus.PROCESSING);
+    // 1. 更新状态为处理�?    await setTaskStatus(taskNo, TaskStatus.PROCESSING);
     await query('UPDATE tasks SET status = ? WHERE task_no = ?', [TaskStatus.PROCESSING, taskNo]);
     
     // 2. 获取任务内容
@@ -104,10 +98,10 @@ export async function processTask(taskNo: string): Promise<void> {
     );
     
     if (!tasks || tasks.length === 0) {
-      throw new Error('任务不存在');
+      throw new Error('任务不存�?);
     }
     
-    const task = tasks[0];
+    const task = tasks[0] as any;
     
     // 3. 调用GPT改写
     const result = await rewriteText(
@@ -122,13 +116,12 @@ export async function processTask(taskNo: string): Promise<void> {
       [result, TaskStatus.COMPLETED, taskNo]
     );
     
-    // 5. 更新Redis状态
-    await setTaskStatus(taskNo, TaskStatus.COMPLETED, 3600); // 缓存1小时
+    // 5. 更新Redis状�?    await setTaskStatus(taskNo, TaskStatus.COMPLETED, 3600); // 缓存1小时
     
-    console.log(`✅ 任务 ${taskNo} 处理完成`);
+    console.log(`�?任务 ${taskNo} 处理完成`);
   } catch (error: any) {
     // 6. 处理失败
-    console.error(`❌ 任务 ${taskNo} 处理失败:`, error);
+    console.error(`�?任务 ${taskNo} 处理失败:`, error);
     
     await query(
       'UPDATE tasks SET status = ?, error_message = ? WHERE task_no = ?',

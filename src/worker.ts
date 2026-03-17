@@ -1,6 +1,6 @@
 import config from './config/index';
-import { popTask, getQueueLength } from '../lib/redis';
-import { processTask } from '../services/task';
+import { popTask, getQueueLength } from './lib/redis';
+import { processTask } from './services/task';
 
 console.log('🚀 Worker启动中...');
 

@@ -150,7 +150,18 @@ export default function Home() {
             <button onClick={() => setUiLang(uiLang === 'zh' ? 'en' : 'zh')} className="px-3 py-2 bg-slate-100 rounded-lg text-sm">{uiLang === 'zh' ? 'EN' : '中文'}</button>
             {user ? (
               <div className="flex items-center gap-2">
-                <div className="px-3 py-2 bg-blue-50 rounded-lg text-sm"><span className="text-blue-700">{user.nickname}</span><span className="text-slate-400 mx-1">|</span><span className="text-green-600">{user.monthlyPackage ? `${(user.monthlyWordsLimit || 0) - (user.monthlyWordsUsed || 0)}${uiLang === 'zh' ? '字' : 'words'}` : `${cur}${user.balance}`}</span></div>
+                <div className="px-3 py-2 bg-blue-50 rounded-lg text-sm">
+                  <span className="text-blue-700">{user.nickname}</span>
+                  <span className="text-slate-400 mx-1">|</span>
+                  <span className="text-green-600">
+                    {(() => {
+                      const remaining = user.monthlyPackage 
+                        ? (user.monthlyWordsLimit || 0) - (user.monthlyWordsUsed || 0)
+                        : Math.floor((user.balance || 0) / (region?.pricePerThousand || (textLang === 'zh' ? 2 : 0.5)) * 1000);
+                      return `${remaining}${uiLang === 'zh' ? '字' : 'words'}`;
+                    })()}
+                  </span>
+                </div>
                 <button onClick={logout} className="text-sm text-slate-500">{t[uiLang].lg}</button>
               </div>
             ) : (<button onClick={() => { setAuthMode('login'); setShowAuth(true); }} className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm">{t[uiLang].in}</button>)}
